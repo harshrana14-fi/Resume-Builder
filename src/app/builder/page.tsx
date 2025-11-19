@@ -11,10 +11,6 @@ import { generatePDF } from "@/utils/pdfGenerator";
 import { ResumeData, PersonalInfo, WorkExperience, Education, Skill } from "@/types/resume";
 
 export default function BuilderPage() {
-  const searchParams = useSearchParams();
-  const templateId = parseInt(searchParams.get("template") || "1", 10);
-  const resumePreviewRef = useRef<HTMLDivElement>(null);
-  
   const [activeSection, setActiveSection] = useState("personal");
   const [resumeData, setResumeData] = useState<ResumeData>({
     personalInfo: {
@@ -32,17 +28,37 @@ export default function BuilderPage() {
     workExperience: [],
     education: [],
     skills: [],
-    templateId: templateId,
+    templateId: 1, // Default template ID
   });
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const resumePreviewRef = useRef<HTMLDivElement>(null);
 
-  // Update templateId when URL changes
+  // Client-side only effect to handle search params
   useEffect(() => {
-    setResumeData(prev => ({
-      ...prev,
-      templateId: templateId
-    }));
-  }, [templateId]);
+    // This code only runs on the client side
+    const updateTemplateFromUrl = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const templateId = parseInt(urlParams.get("template") || "1", 10);
+      setResumeData(prev => ({
+        ...prev,
+        templateId: templateId
+      }));
+    };
+
+    // Update template ID from URL on mount
+    updateTemplateFromUrl();
+
+    // Listen for URL changes (if using client-side routing)
+    const handleUrlChange = () => {
+      updateTemplateFromUrl();
+    };
+
+    window.addEventListener("popstate", handleUrlChange);
+    
+    return () => {
+      window.removeEventListener("popstate", handleUrlChange);
+    };
+  }, []);
 
   const updatePersonalInfo = (info: PersonalInfo) => {
     setResumeData({ ...resumeData, personalInfo: info });
