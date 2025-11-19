@@ -11,6 +11,7 @@ export default function Navbar() {
     { name: "Templates", href: "/templates" },
     { name: "Resume Builder", href: "/builder" },
     { name: "ATS Checker", href: "/ats-checker" },
+    { name: "FAQ", href: "/faq" },
   ];
 
   return (
